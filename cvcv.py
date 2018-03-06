@@ -154,10 +154,12 @@ max_features = 68000  #分词函数将选取出现频率最多的前68000个词
 maxlen = 150          #填充的最大长度
 embed_size = 200      #这个好像是维度？
 
-tokenizer = text.Tokenizer(num_words=max_features)        #设置分词tokenizer类
+tokenizer = text.Tokenizer(num_words=max_features)        #设置分词tokenizer类 
+#这个类用来对文本中的词进行统计计数，生成文档词典，以支持基于词典位序生成文本的向量表示。传入词典的最大值num_words
 tokenizer.fit_on_texts(list(X_train))                       #生成文档词典
-X_train = tokenizer.texts_to_sequences(X_train)           #得到train集词的索引
-x_train = sequence.pad_sequences(X_train, maxlen=maxlen)   #把索引的最大长度填充至 maxlen
+#使用一系列文档X_train来生成token文档词典，texts为list类，每个元素为一个文档
+X_train = tokenizer.texts_to_sequences(X_train)           #得到train中每个list元素的索引
+x_train = sequence.pad_sequences(X_train, maxlen=maxlen)   #把train中每个list索引的最大长度填充至 maxlen（保持一致）
 
 
 ################################词嵌入##########################################
