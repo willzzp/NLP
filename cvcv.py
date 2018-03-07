@@ -170,7 +170,8 @@ embeddings_index = dict(get_coefs(*o.rstrip().rsplit(' ')) for o in open(EMBEDDI
 #读入glove，把词和词向量存入字典embeddings_index。
 """embeddings_index 是通过glove预训练词向量构造的一个字典，每个单词都有一个对应的300维度的词向量,
 词向量来源于glove的预训练。接着，我们构造了一个embedding_matrix，只取了排名靠前的6.8W单词，
-并且把词向量填充进embedding_matrix。"""
+并且把词向量填充进embedding_matrix。参考 https://spaces.ac.cn/archives/4122/ 
+Embedding层就是以one hot为输入、中间层节点为字向量维数的全连接层！而这个全连接层的参数，就是一个“字向量表”"""
 
 word_index = tokenizer.word_index
 #保存索引的词典，在词典中，每个单词都有一个对应的下标序号
@@ -203,8 +204,12 @@ def get_model():                            #定义学习模型
     inp = Input(shape=(maxlen, ))           #定义输入层，输入为maxlen长度的列向量。
     x = Embedding(max_features, embed_size, weights=[embedding_matrix])(inp)    #嵌入层，把下表转化为向量
     x = SpatialDropout1D(0.1)(x)
-    # SpatialDropout1D与Dropout的作用类似（随机按比例断开输入神经元链接），但它断开的是整个1D特征图,而不是单个神经元。
+"""SpatialDropout1D与Dropout的作用类似（随机按比例断开输入神经元链接），但它断开的是整个1D特征图,而不是单个神经元。
+如果一张特征图的相邻像素之间有很强的相关性（通常发生在低层的卷积层中），那么普通的dropout无法正则化其输出，
+否则就会导致明显的学习率下降。这种情况下，SpatialDropout2D(3D)能够帮助提高特征图之间的独立性，应该用其取代普通的Dropout"""
     x = Bidirectional(CuDNNGRU(128, return_sequences=True))(x)
+	#GRU()中的128是输出维度  参考http://blog.csdn.net/jiangpeng59/article/details/77646186
+	#Bidirectional是双向RNN包装器
     avg_pool = GlobalAveragePooling1D()(x)    #时域信号施加全局平均值池化
     max_pool = GlobalMaxPooling1D()(x)        #对时间信号的全局最大值池化
     conc = concatenate([avg_pool, max_pool])  #合并池化结果
