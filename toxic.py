@@ -341,3 +341,5 @@ for train_index,test_index in kf.split(X_train):
     y_pred = model.predict(test, batch_size=1024)
     result+=roc_auc_score(y_tes,y_pred)
 print('score: ',result)
+submission[["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]] = y_pred
+submission.to_csv('C:/Users/Mzzp/Desktop/workshop/toxicm/submission.csv', index=False)
