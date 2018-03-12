@@ -180,11 +180,16 @@ class RocAucEvaluation(Callback):
 
 ####################################模型################################################
 
-# train a 1D convnet with global maxpoolinnb_wordsg
 
+embedding_layer = Embedding(nb_words + 1,
+                            EMBEDDING_DIM,
+                            input_length=MAX_SEQUENCE_LENGTH,
+                            weights=[embedding_matrix],
+                            trainable=True)
+# train a 1D convnet with global maxpoolinnb_wordsg
+model.add(Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32'))
 #left model 第一块神经网络，卷积窗口是5*50（50是词向量维度）
 model_left = Sequential()
-#model.add(Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32'))
 model_left.add(embedding_layer)
 model_left.add(Conv1D(128, 5, activation='tanh'))
 model_left.add(MaxPooling1D(5))
@@ -222,7 +227,7 @@ merged = Merge([model_left, model_right,model_3], mode='concat') # 将三种不�
 model = Sequential()
 model.add(merged) # add merge
 model.add(Dense(128, activation='tanh')) # 全连接层
-model.add(Dense(len(labels_index), activation='softmax')) # softmax，输出文本属于20种类别中每个类别的概率
+model.add(Dense(6, activation='softmax')) # softmax，输出文本属于20种类别中每个类别的概率
 
 # 优化器我这里用了adadelta，也可以使用其他方法
 model.compile(loss='categorical_crossentropy',
@@ -234,7 +239,7 @@ model.compile(loss='categorical_crossentropy',
 batch_size = 32
 epochs = 5
 
-X_tra, X_val, y_tra, y_val = train_test_split(x_train, y_train, train_size=0.95, random_state=233)
+X_tra, X_val, y_tra, y_val = train_test_split(x_train, y_train, train_size=0.95, random_state=166)
 RocAuc = RocAucEvaluation(validation_data=(X_val, y_val), interval=1)
 
 hist = model.fit(X_tra, y_tra, batch_size=batch_size, epochs=epochs, validation_data=(X_val, y_val),
