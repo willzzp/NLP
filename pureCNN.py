@@ -154,7 +154,7 @@ x_test = sequence.pad_sequences(X_test, maxlen=maxlen)
 
 
 def get_coefs(word, *arr): return word, np.asarray(arr, dtype='float32')
-embeddings_index = dict(get_coefs(*o.rstrip().rsplit(' ')) for o in open(EMBEDDING_FILE))
+embeddings_index = dict(get_coefs(*o.rstrip().rsplit(' ')) for o in open(EMBEDDING_FILE,encoding='utf-8'))
 
 word_index = tokenizer.word_index
 nb_words = min(max_features, len(word_index))
@@ -232,13 +232,13 @@ model.compile(loss='categorical_crossentropy',
 
 ####################################模型################################################
 batch_size = 32
-epochs = 2
+epochs = 5
 
 X_tra, X_val, y_tra, y_val = train_test_split(x_train, y_train, train_size=0.95, random_state=233)
 RocAuc = RocAucEvaluation(validation_data=(X_val, y_val), interval=1)
 
 hist = model.fit(X_tra, y_tra, batch_size=batch_size, epochs=epochs, validation_data=(X_val, y_val),
-                 callbacks=[RocAuc], verbose=2)
+                 callbacks=[RocAuc])
 
 
 y_pred = model.predict(x_test, batch_size=1024)
