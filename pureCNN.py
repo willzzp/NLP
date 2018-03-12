@@ -220,7 +220,7 @@ def get_model():
     left = Flatten()(left)
     
     mid = Conv1D(128, 5, activation='tanh')(x)
-    mid = MaxPooling1D(5)(left)
+    mid = MaxPooling1D(5)(mid)
     #mid = Conv1D(128, 5, activation='tanh')(mid)
     #mid = MaxPooling1D(5)(mid)   
     mid = Flatten()(mid)
