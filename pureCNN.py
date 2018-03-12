@@ -232,9 +232,7 @@ def get_model():
     right = Flatten()(right)   
             
     conc = concatenate([left, mid, right])
-    avg_pool = GlobalAveragePooling1D()(conc)
-    max_pool = GlobalMaxPooling1D()(conc)
-    conc = concatenate([avg_pool, max_pool])
+
     x = Dense(64, activation='relu')(conc)
     x = Dropout(0.3)(x)
     outp = Dense(6, activation="sigmoid")(conc)
